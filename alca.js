@@ -5,7 +5,7 @@ var watchr = require('watchr');
 var path = require('path');
 var less = require('less');
 var sys = require('sys');
-var 
+var exec = require('child_process').exec;
 
 var argvs  = process.argv.slice(2);
 var input  = argvs[argvs.length-2];
@@ -55,6 +55,17 @@ function createFile(filePath) {
     }
 }
 
+function deleteFile(filePath, remove) {
+    var out = getOutputPath(filePath).slice(0, -4) + "css";
+    var cmd = "rm -f " + out;
+    exec(cmd, function(err, stdout, stderr) {
+        if(err) {
+            console.log(err);
+        } else {
+            if(remove) console.log('Deleted ' + out);
+        }
+    });
+}
 
 watchr.watch({
     path : input,
@@ -71,10 +82,12 @@ watchr.watch({
                 break;
             case 'update' :
                 console.log('Updated: ' + filePath);
+                deleteFile(filePath, false);
+                createFile(filePath);
                 break;
             case 'delete' : 
                 console.log('Deleted: ' + filePath);
-                
+                deleteFile(filePath, true);
                 break;
             default :
                 console.log('Something is wrong.');
