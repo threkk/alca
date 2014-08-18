@@ -45,7 +45,8 @@ function createFile(filePath) {
                                 console.log(err);
                                 exit(1);
                             } else {
-                                console.log('Compiled file ' + out);
+                                var now = new Date();        
+                                console.log(now.toTimeString() + ' - Compiled file ' + out);
                             }
                         });
                     }
@@ -62,7 +63,8 @@ function deleteFile(filePath, remove) {
         if(err) {
             console.log(err);
         } else {
-            if(remove) console.log('Deleted ' + out);
+            var now = new Date();
+            if(remove) console.log(now.toTimeString() + ' - Deleted ' + out);
         }
     });
 }
@@ -74,19 +76,20 @@ watchr.watch({
         
         var change = arguments[0];
         var filePath = arguments[1];
+        var now = new Date();
 
         switch(change) {
             case 'create' :
-                console.log('Created: ' + filePath);
+                console.log(now.toTimeString() + ' - Created: ' + filePath);
                 createFile(filePath);
                 break;
             case 'update' :
-                console.log('Updated: ' + filePath);
+                console.log(now.toTimeString() + ' - Updated: ' + filePath);
                 deleteFile(filePath, false);
                 createFile(filePath);
                 break;
             case 'delete' : 
-                console.log('Deleted: ' + filePath);
+                console.log(now.toTimeString() + ' - Deleted: ' + filePath);
                 deleteFile(filePath, true);
                 break;
             default :
