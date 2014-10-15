@@ -56,7 +56,7 @@ function createFile(filePath) {
     }
 }
 
-function deleteFile(filePath, remove) {
+function deleteFile(filePath, remove, callback) {
     var out = getOutputPath(filePath).slice(0, -4) + "css";
     var cmd = "rm -f " + out;
     exec(cmd, function(err, stdout, stderr) {
@@ -65,6 +65,7 @@ function deleteFile(filePath, remove) {
         } else {
             var now = new Date();
             if(remove) console.log(now.toTimeString() + ' - Deleted ' + out);
+            callback();
         }
     });
 }
@@ -85,8 +86,9 @@ watchr.watch({
                 break;
             case 'update' :
                 console.log(now.toTimeString() + ' - Updated: ' + filePath);
-                deleteFile(filePath, false);
-                createFile(filePath);
+                deleteFile(filePath, false, function(){
+					createFile(filePath);
+				});
                 break;
             case 'delete' : 
                 console.log(now.toTimeString() + ' - Deleted: ' + filePath);
