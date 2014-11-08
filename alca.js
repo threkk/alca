@@ -12,39 +12,35 @@ var input  = argvs[argvs.length-2];
 var output = argvs[argvs.length-1];
 
 function getOutputPath(filePath) {
-    var diff = path.relative(input,filePath);
+    var diff = path.relative(input, filePath);
     return output + diff;
 }
 
 function createFile(filePath) {
     var str = filePath.split('.');
     var ext = str[str.length-1];
+
     if(ext === 'less') {
-        var out = getOutputPath(filePath).slice(0, -4) + "css";
+        var out = getOutputPath(filePath).slice(0, -4) + 'css';
         options = {
             'encoding' : 'utf8',
             'flag' : 'r'
         };
-        fs.readFile(filePath, options, function(err, data){
-            if(err) {
-                console.log(err);
-                exit(1);
-            } else {
+
+        fs.readFile(filePath, options, function(err, data) {
+            if(err) console.log(err);
+            else {
                 var parser = new(less.Parser)({
                     paths: ['.', input],
                     filename: filePath
                 });
                 parser.parse(data, function(err, tree) {
-                    if(err) {
-                        console.log(err);
-                        exit(1);
-                    } else {
+                    if(err) console.log(err);
+                    else {
                         css = tree.toCSS();
                         fs.writeFile(out, css, function(err) {
-                            if(err) {
-                                console.log(err);
-                                exit(1);
-                            } else {
+                            if(err) console.log(err);
+                            else {
                                 var now = new Date();
                                 console.log(now.toTimeString() + ' - Compiled file ' + out);
                             }
@@ -57,13 +53,11 @@ function createFile(filePath) {
 }
 
 function deleteFile(filePath, remove, callback) {
-    var out = getOutputPath(filePath).slice(0, -4) + "css";
-    //var cmd = "rm -f " + out;
+    var out = getOutputPath(filePath).slice(0, -4) + 'css';
 
     fs.unlink(out, function(err) {
-      if(err) {
-          console.log(err);
-      } else {
+      if(err) console.log(err);
+      else {
           var now = new Date();
           if(remove) console.log(now.toTimeString() + ' - Deleted ' + out);
           if(typeof callback == 'function')
@@ -86,11 +80,20 @@ watchr.watch({
                 console.log(now.toTimeString() + ' - Created: ' + filePath);
                 createFile(filePath);
                 break;
+
             case 'update' :
                 console.log(now.toTimeString() + ' - Updated: ' + filePath);
-                deleteFile(filePath, false, function(){
-					createFile(filePath);
-				});
+                // Deprecated, it needs to be changed.
+                fs.exists(getOutputPath(filePath), function(exists) {
+                  if(exists) {
+                    deleteFile(filePath, false, function(){
+                           createFile(filePath);
+                             });
+                  } else {
+                    createFile(filePath);
+                  }
+                });
+
                 break;
             case 'delete' :
                 console.log(now.toTimeString() + ' - Deleted: ' + filePath);
