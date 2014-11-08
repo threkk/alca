@@ -45,28 +45,30 @@ function createFile(filePath) {
                                 console.log(err);
                                 exit(1);
                             } else {
-                                var now = new Date();        
+                                var now = new Date();
                                 console.log(now.toTimeString() + ' - Compiled file ' + out);
                             }
                         });
                     }
                 });
             }
-        });    
+        });
     }
 }
 
 function deleteFile(filePath, remove, callback) {
     var out = getOutputPath(filePath).slice(0, -4) + "css";
-    var cmd = "rm -f " + out;
-    exec(cmd, function(err, stdout, stderr) {
-        if(err) {
-            console.log(err);
-        } else {
-            var now = new Date();
-            if(remove) console.log(now.toTimeString() + ' - Deleted ' + out);
+    //var cmd = "rm -f " + out;
+
+    fs.unlink(out, function(err) {
+      if(err) {
+          console.log(err);
+      } else {
+          var now = new Date();
+          if(remove) console.log(now.toTimeString() + ' - Deleted ' + out);
+          if(typeof callback == 'function')
             callback();
-        }
+      }
     });
 }
 
@@ -74,7 +76,7 @@ watchr.watch({
     path : input,
     interval : 3000,
     listener :function() {
-        
+
         var change = arguments[0];
         var filePath = arguments[1];
         var now = new Date();
@@ -90,7 +92,7 @@ watchr.watch({
 					createFile(filePath);
 				});
                 break;
-            case 'delete' : 
+            case 'delete' :
                 console.log(now.toTimeString() + ' - Deleted: ' + filePath);
                 deleteFile(filePath, true);
                 break;
